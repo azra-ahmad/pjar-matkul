@@ -1,6 +1,6 @@
 import socket
 
-UDP_IP = "192.168.43.184" 
+UDP_IP = "192.168.100.237" 
 UDP_PORT = 8501
 MESSAGE = b"Halo Azra, ini paket UDP dari Windows!"
 

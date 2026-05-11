@@ -17,8 +17,9 @@ SERVER_IP   = "192.168.100.237"   # ← ganti dengan IP VM lo
 SERVER_PORT = 8502
 BUFFER      = 4096
 
-# Lock untuk pause recv thread saat upload file berlangsung
-upload_lock = threading.Lock()
+# Event: SET = recv thread boleh jalan, CLEAR = recv thread harus pause
+recv_allowed = threading.Event()
+recv_allowed.set()
 
 
 # ─── Thread: Menerima Pesan dari Server ─────────────────────────────────────
@@ -26,14 +27,17 @@ def receive_messages(conn: socket.socket, stop_event: threading.Event):
     """
     Berjalan di thread terpisah.
     Mendengarkan semua pesan dari server dan mencetak ke layar.
-    Otomatis pause saat upload_lock dipegang oleh upload_file().
+    Pause otomatis saat recv_allowed.clear() dipanggil oleh upload_file().
     """
+    conn.settimeout(0.5)
     try:
         while not stop_event.is_set():
-            # Kalau sedang upload, skip dulu biar READY: tidak diserobot
-            if upload_lock.locked():
+            # Tunggu sampai recv_allowed di-set() lagi (blokir saat upload)
+            recv_allowed.wait()
+            try:
+                data = conn.recv(BUFFER)
+            except socket.timeout:
                 continue
-            data = conn.recv(BUFFER)
             if not data:
                 print("\n[INFO] Server menutup koneksi.")
                 stop_event.set()
@@ -96,9 +100,8 @@ def do_login(conn: socket.socket) -> bool:
 def upload_file(conn: socket.socket, command: str):
     """
     Proses upload file ke server.
-    Memakai upload_lock agar recv thread tidak menyambar pesan READY:
-    sebelum fungsi ini sempat membacanya.
-    Format perintah: /send <path_file_lokal>
+    recv_allowed.clear() dulu biar recv thread berhenti baca socket,
+    sehingga pesan READY: tidak diserobot sebelum fungsi ini membacanya.
     """
     parts = command.split(maxsplit=1)
     if len(parts) < 2:
@@ -117,20 +120,21 @@ def upload_file(conn: socket.socket, command: str):
         print("[!] File terlalu besar (maks 10 MB).")
         return
 
-    # Ambil lock → recv thread berhenti baca socket sementara
-    with upload_lock:
+    # Pause recv thread SEBELUM kirim header apapun ke server
+    recv_allowed.clear()
+
+    try:
         header = f"/send {filename} {file_size}"
         conn.sendall(header.encode("utf-8"))
 
-        # Baca READY: langsung di sini, bukan di recv thread
         conn.settimeout(5)
         try:
             response = conn.recv(BUFFER).decode("utf-8").strip()
         except socket.timeout:
             print("[!] Server tidak merespons saat upload. Coba lagi.")
-            conn.settimeout(None)
             return
-        conn.settimeout(None)
+        finally:
+            conn.settimeout(None)
 
         if not response.startswith("READY:"):
             print(f"[SERVER] {response}")
@@ -145,7 +149,11 @@ def upload_file(conn: socket.socket, command: str):
                     break
                 conn.sendall(chunk)
 
-    print("[INFO] File berhasil dikirim.")
+        print("[INFO] File berhasil dikirim.")
+
+    finally:
+        # Selalu resume recv thread meski ada error
+        recv_allowed.set()
 
 
 # ─── Main ───────────────────────────────────────────────────────────────────

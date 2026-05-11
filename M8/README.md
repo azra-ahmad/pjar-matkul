@@ -2,7 +2,7 @@
 
 Project ini berisi implementasi aplikasi chat sederhana menggunakan socket programming di Python. Program dibagi menjadi dua bagian utama, yaitu chat berbasis UDP dan chat berbasis TCP.
 
-Project lama di root folder seperti `udp_client.py` dan `udp_server.py` adalah latihan minggu sebelumnya. Source code yang dipakai untuk tugas M8 berada di folder ini.
+Link repository Github: https://github.com/azra-ahmad/pjar-matkul/
 
 ## Informasi Project
 

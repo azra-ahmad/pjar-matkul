@@ -4,6 +4,8 @@ Project ini berisi implementasi aplikasi chat sederhana menggunakan socket progr
 
 Source code yang dipakai untuk tugas M8 berada di folder `M8/`. File `udp_client.py` dan `udp_server.py` di root repository adalah latihan minggu sebelumnya.
 
+Link repository Github: https://github.com/azra-ahmad/pjar-matkul/
+
 ## Informasi Project
 
 - Mata kuliah: Pemrograman Jaringan

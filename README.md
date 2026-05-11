@@ -2,7 +2,7 @@
 
 Project ini berisi implementasi aplikasi chat sederhana menggunakan socket programming di Python. Program dibagi menjadi dua bagian utama, yaitu chat berbasis UDP dan chat berbasis TCP.
 
-Project lama di root folder seperti `udp_client.py` dan `udp_server.py` adalah latihan minggu sebelumnya. Source code yang dipakai untuk tugas M8 berada di folder ini.
+Source code yang dipakai untuk tugas M8 berada di folder `M8/`. File `udp_client.py` dan `udp_server.py` di root repository adalah latihan minggu sebelumnya.
 
 ## Informasi Project
 
@@ -10,23 +10,27 @@ Project lama di root folder seperti `udp_client.py` dan `udp_server.py` adalah l
 - Bahasa: Python
 - Mode tampilan: Command Line Interface (CLI)
 - Protokol: UDP dan TCP
-- Platform pengujian: Server di VM, client di Windows lokal
+- Platform pengujian: Server di terminal yang connect SSH VM, client di Windows lokal
 
 ## Struktur File
 
 ```text
-M8/
-|-- udp_server.py        # Server UDP
-|-- udp_client.py        # Client UDP
-|-- tcp_server.py        # Server TCP
-|-- tcp_client.py        # Client TCP
-|-- test.txt             # File contoh untuk pengujian upload TCP
-|-- screenshot/
-|   |-- udp_server.png
-|   |-- udp_client.png
-|   |-- udp_salahLogin.png
-|   |-- tcp_server.png
-|   `-- tcp_client.png
+pjar-matkul/
+|-- udp_client.py          # Latihan minggu sebelumnya
+|-- udp_server.py          # Latihan minggu sebelumnya
+|-- M8/
+|   |-- udp_server.py      # Server UDP
+|   |-- udp_client.py      # Client UDP
+|   |-- tcp_server.py      # Server TCP
+|   |-- tcp_client.py      # Client TCP
+|   |-- test.txt           # File contoh untuk pengujian upload TCP
+|   |-- screenshot/
+|   |   |-- udp_server.png
+|   |   |-- udp_client.png
+|   |   |-- udp_salahLogin.png
+|   |   |-- tcp_server.png
+|   |   `-- tcp_client.png
+|   `-- README.md
 `-- README.md
 ```
 
@@ -34,7 +38,7 @@ M8/
 
 ### 1. UDP Chat
 
-Program UDP terdiri dari `udp_server.py` dan `udp_client.py`. Server menerima paket dari beberapa client, menyimpan daftar client aktif, lalu melakukan broadcast pesan ke semua client yang sedang terdaftar.
+Program UDP terdiri dari `M8/udp_server.py` dan `M8/udp_client.py`. Server menerima paket dari beberapa client, menyimpan daftar client aktif, lalu melakukan broadcast pesan ke semua client yang sedang terdaftar.
 
 Alur kerja UDP:
 
@@ -48,7 +52,7 @@ Alur kerja UDP:
 
 ### 2. TCP Chat
 
-Program TCP terdiri dari `tcp_server.py` dan `tcp_client.py`. Server berjalan dengan model multi-connection menggunakan thread, sehingga beberapa client dapat terhubung dan chat secara real-time.
+Program TCP terdiri dari `M8/tcp_server.py` dan `M8/tcp_client.py`. Server berjalan dengan model multi-connection menggunakan thread, sehingga beberapa client dapat terhubung dan chat secara real-time.
 
 Alur kerja TCP:
 
@@ -67,13 +71,8 @@ Alur kerja TCP:
 - Broadcast pesan ke semua client aktif.
 - Logging pesan ke file `chat_log_udp.txt`.
 - Format pesan menggunakan timestamp dan username.
-- Validasi username:
-  - Tidak boleh kosong.
-  - Maksimal 20 karakter.
-  - Hanya boleh huruf, angka, dan underscore.
-- Validasi pesan:
-  - Tidak boleh kosong.
-  - Maksimal 300 karakter.
+- Validasi username: tidak kosong, maksimal 20 karakter, hanya huruf, angka, dan underscore.
+- Validasi pesan: tidak kosong dan maksimal 300 karakter.
 - Error handling untuk input tidak valid dan koneksi server.
 
 ### Fitur TCP
@@ -101,7 +100,7 @@ Alur kerja TCP:
 | `lupiwo` | `cantip` |
 | `tamu` | `1234` |
 
-Data akun dapat diubah melalui dictionary `USER_DB` pada file `tcp_server.py`.
+Data akun dapat diubah melalui dictionary `USER_DB` pada file `M8/tcp_server.py`.
 
 ## Konfigurasi IP dan Port
 
@@ -127,49 +126,35 @@ sudo ufw allow 8502/tcp
 
 ## Cara Menjalankan Program
 
-### Menjalankan UDP
+Masuk dulu ke folder M8:
 
-Jalankan server UDP terlebih dahulu:
+```bash
+cd M8
+```
+
+Jalankan server UDP:
 
 ```bash
 python udp_server.py
 ```
 
-Atau jika menggunakan Linux/VM:
-
-```bash
-python3 udp_server.py
-```
-
-Lalu jalankan client UDP di terminal lain:
+Jalankan client UDP di terminal lain:
 
 ```bash
 python udp_client.py
 ```
 
-Setelah username berhasil didaftarkan, client dapat langsung mengirim pesan. Gunakan `/quit` untuk keluar dari chat.
-
-### Menjalankan TCP
-
-Jalankan server TCP terlebih dahulu:
+Jalankan server TCP:
 
 ```bash
 python tcp_server.py
 ```
 
-Atau jika menggunakan Linux/VM:
-
-```bash
-python3 tcp_server.py
-```
-
-Lalu jalankan client TCP di terminal lain:
+Jalankan client TCP di terminal lain:
 
 ```bash
 python tcp_client.py
 ```
-
-Login menggunakan salah satu akun yang tersedia, lalu gunakan chat atau command yang disediakan.
 
 Contoh upload file pada TCP:
 
@@ -181,23 +166,23 @@ Contoh upload file pada TCP:
 
 ### UDP Server
 
-![UDP Server](screenshot/udp_server.png)
+![UDP Server](M8/screenshot/udp_server.png)
 
 ### UDP Client
 
-![UDP Client](screenshot/udp_client.png)
+![UDP Client](M8/screenshot/udp_client.png)
 
 ### UDP Validasi Input
 
-![UDP Validasi Input](screenshot/udp_salahLogin.png)
+![UDP Validasi Input](M8/screenshot/udp_salahLogin.png)
 
 ### TCP Server
 
-![TCP Server](screenshot/tcp_server.png)
+![TCP Server](M8/screenshot/tcp_server.png)
 
 ### TCP Client
 
-![TCP Client](screenshot/tcp_client.png)
+![TCP Client](M8/screenshot/tcp_client.png)
 
 ## Output File yang Dihasilkan
 

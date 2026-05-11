@@ -13,9 +13,12 @@ import sys
 import os
 
 # ─── Konfigurasi ────────────────────────────────────────────────────────────
-SERVER_IP   = "192.168.100.237"
+SERVER_IP   = "192.168.100.237"   # ← ganti dengan IP VM lo
 SERVER_PORT = 8502
 BUFFER      = 4096
+
+# Lock untuk pause recv thread saat upload file berlangsung
+upload_lock = threading.Lock()
 
 
 # ─── Thread: Menerima Pesan dari Server ─────────────────────────────────────
@@ -23,9 +26,13 @@ def receive_messages(conn: socket.socket, stop_event: threading.Event):
     """
     Berjalan di thread terpisah.
     Mendengarkan semua pesan dari server dan mencetak ke layar.
+    Otomatis pause saat upload_lock dipegang oleh upload_file().
     """
     try:
         while not stop_event.is_set():
+            # Kalau sedang upload, skip dulu biar READY: tidak diserobot
+            if upload_lock.locked():
+                continue
             data = conn.recv(BUFFER)
             if not data:
                 print("\n[INFO] Server menutup koneksi.")
@@ -45,7 +52,8 @@ def receive_messages(conn: socket.socket, stop_event: threading.Event):
 def do_login(conn: socket.socket) -> bool:
     """
     Lakukan proses login interaktif dengan server.
-    Server akan mengirimkan prompt USERNAME: dan PASSWORD:
+    Server kirim prompt USERNAME: dan PASSWORD: — client langsung input,
+    tanpa duplikasi label di layar.
     Return True jika berhasil login.
     """
     buffer = ""
@@ -54,21 +62,20 @@ def do_login(conn: socket.socket) -> bool:
         buffer += chunk
 
         lines = buffer.split("\n")
-        buffer = lines[-1]   # simpan sisa yang belum newline
+        buffer = lines[-1]
 
         for line in lines[:-1]:
             line = line.strip()
             if not line:
                 continue
 
-            print(line)
-
+            # Skip print prompt USERNAME/PASSWORD — langsung input aja
             if line == "USERNAME:":
-                username = input("  Username: ").strip()
+                username = input("Username: ").strip()
                 conn.sendall(username.encode("utf-8"))
 
             elif line == "PASSWORD:":
-                password = input("  Password: ").strip()
+                password = input("Password: ").strip()
                 conn.sendall(password.encode("utf-8"))
 
             elif line.startswith("LOGIN_OK:"):
@@ -76,19 +83,22 @@ def do_login(conn: socket.socket) -> bool:
                 return True
 
             elif line.startswith("LOGIN_FAIL:") or line.startswith("ERROR:"):
-                # Tampilkan pesan error tapi lanjut loop (server beri 3 kesempatan)
                 print(f"[!] {line.split(':', 1)[1]}")
-                # Jika server bilang koneksi ditutup, keluar
                 if "ditutup" in line or "banyak" in line:
                     return False
+
+            else:
+                # Pesan lain dari server (banner, dll) tetap ditampilkan
+                print(line)
 
 
 # ─── Upload File ─────────────────────────────────────────────────────────────
 def upload_file(conn: socket.socket, command: str):
     """
-    Proses upload file setelah server merespons READY.
+    Proses upload file ke server.
+    Memakai upload_lock agar recv thread tidak menyambar pesan READY:
+    sebelum fungsi ini sempat membacanya.
     Format perintah: /send <path_file_lokal>
-    Client otomatis hitung ukuran dan kirim headernya.
     """
     parts = command.split(maxsplit=1)
     if len(parts) < 2:
@@ -103,30 +113,37 @@ def upload_file(conn: socket.socket, command: str):
     filename  = os.path.basename(filepath)
     file_size = os.path.getsize(filepath)
 
-    # Batasi 10 MB
     if file_size > 10 * 1024 * 1024:
         print("[!] File terlalu besar (maks 10 MB).")
         return
 
-    # Kirim header ke server
-    header = f"/send {filename} {file_size}"
-    conn.sendall(header.encode("utf-8"))
+    # Ambil lock → recv thread berhenti baca socket sementara
+    with upload_lock:
+        header = f"/send {filename} {file_size}"
+        conn.sendall(header.encode("utf-8"))
 
-    # Tunggu sinyal READY dari server
-    response = conn.recv(BUFFER).decode("utf-8").strip()
-    if not response.startswith("READY:"):
-        print(f"[SERVER] {response}")
-        return
+        # Baca READY: langsung di sini, bukan di recv thread
+        conn.settimeout(5)
+        try:
+            response = conn.recv(BUFFER).decode("utf-8").strip()
+        except socket.timeout:
+            print("[!] Server tidak merespons saat upload. Coba lagi.")
+            conn.settimeout(None)
+            return
+        conn.settimeout(None)
 
-    print(f"[INFO] Mengirim file '{filename}' ({file_size} bytes)...")
+        if not response.startswith("READY:"):
+            print(f"[SERVER] {response}")
+            return
 
-    # Kirim isi file
-    with open(filepath, "rb") as f:
-        while True:
-            chunk = f.read(BUFFER)
-            if not chunk:
-                break
-            conn.sendall(chunk)
+        print(f"[INFO] Mengirim file '{filename}' ({file_size} bytes)...")
+
+        with open(filepath, "rb") as f:
+            while True:
+                chunk = f.read(BUFFER)
+                if not chunk:
+                    break
+                conn.sendall(chunk)
 
     print("[INFO] File berhasil dikirim.")
 

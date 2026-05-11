@@ -22,10 +22,12 @@ LOG_FILE  = "chat_log_tcp.txt"
 UPLOAD_DIR = "uploads"          # folder penyimpanan file dari client
 BUFFER    = 4096
 
+# Database user sederhana (username: password)
+# Di produksi: pakai hashing & DB asli
 USER_DB = {
-    "azra"  : "ahmad",
-    "dosen" : "1234",
-    "tamu"  : "1234",
+    "azra"   : "ahmad",
+    "lupiwo" : "cantip",
+    "tamu"   : "1234",
 }
 
 # Daftar client yang sedang online: { username: conn }

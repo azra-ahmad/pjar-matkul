@@ -12,7 +12,7 @@ import threading
 import sys
 
 # ─── Konfigurasi ────────────────────────────────────────────────────────────
-SERVER_IP   = "192.168.100.237"   
+SERVER_IP   = "10.245.119.8"   
 SERVER_PORT = 8501
 BUFFER      = 2048
 TIMEOUT     = 5   # detik tunggu respons server

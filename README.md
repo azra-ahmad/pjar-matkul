@@ -1,10 +1,23 @@
-# Tugas M8 - Pemrograman Socket UDP dan TCP
+# Pemrograman Jaringan - Kumpulan Tugas
 
-Project ini berisi implementasi aplikasi chat sederhana menggunakan socket programming di Python. Program dibagi menjadi dua bagian utama, yaitu chat berbasis UDP dan chat berbasis TCP.
-
-Source code yang dipakai untuk tugas M8 berada di folder `M8/`. File `udp_client.py` dan `udp_server.py` di root repository adalah latihan minggu sebelumnya.
+Repository ini berisi kumpulan tugas mata kuliah Pemrograman Jaringan.
 
 Link repository Github: https://github.com/azra-ahmad/pjar-matkul/
+
+## Daftar Tugas
+
+| Folder | Tugas | Deskripsi |
+| --- | --- | --- |
+| `M8/` | Tugas M8 | Aplikasi chat UDP broadcast + TCP multi-client |
+| `pre-uts/` | Tugas Akhir Pre-UTS | Aplikasi FTP file transfer (TCP) |
+
+---
+
+## Tugas M8 - Pemrograman Socket UDP dan TCP
+
+Implementasi aplikasi chat sederhana menggunakan socket programming di Python. Program dibagi menjadi dua bagian utama, yaitu chat berbasis UDP dan chat berbasis TCP.
+
+Source code yang dipakai untuk tugas M8 berada di folder `M8/`. File `udp_client.py` dan `udp_server.py` di root repository adalah latihan minggu sebelumnya.
 
 ## Informasi Project
 
@@ -32,6 +45,10 @@ pjar-matkul/
 |   |   |-- udp_salahLogin.png
 |   |   |-- tcp_server.png
 |   |   `-- tcp_client.png
+|   `-- README.md
+|-- pre-uts/
+|   |-- ftp_server.py      # Server FTP
+|   |-- ftp_client.py      # Client FTP
 |   `-- README.md
 `-- README.md
 ```
@@ -118,6 +135,7 @@ Port yang digunakan:
 | --- | --- | --- |
 | `udp_server.py` | UDP | `8501` |
 | `tcp_server.py` | TCP | `8502` |
+| `ftp_server.py` | TCP | `8503` |
 
 Jika menggunakan firewall di VM, pastikan port sudah dibuka:
 

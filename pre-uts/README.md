@@ -134,6 +134,58 @@ ftp>> /download test.txt
 [OK] File disimpan di: downloads/test.txt
 ```
 
+## Hasil Testing
+
+Pengujian dilakukan dengan menjalankan server di VM Ubuntu dan dua client di Windows lokal (user `azra` dan `lupiwo`) untuk mendemonstrasikan fitur multi-client dan file sharing antar user.
+
+### Alur Testing
+
+1. Jalankan server di VM.
+2. Client pertama (`azra`) login — coba login salah dulu, lalu login benar.
+3. Cek `/list` sebelum upload (kosong).
+4. Upload file `test.txt` menggunakan user `azra`.
+5. Cek `/list` setelah upload — file muncul.
+6. Client kedua (`lupiwo`) login, cek `/list` — file dari `azra` terlihat.
+7. User `lupiwo` download file `test.txt` yang diupload `azra`.
+
+### Screenshot Hasil Running
+
+#### Server Start di VM
+
+![Server Start](screenshot/serverStartVM.png)
+
+#### Login Gagal (Password Salah)
+
+![Login Gagal](screenshot/loginSalah.png)
+
+#### Login Berhasil
+
+![Login Berhasil](screenshot/loginBerhasil.png)
+
+#### List Sebelum Upload (Kosong)
+
+![List Sebelum Upload](screenshot/listSebelumUpload.png)
+
+#### Upload Berhasil
+
+![Upload Berhasil](screenshot/uploadBerhasil.png)
+
+#### List Setelah Upload
+
+![List Setelah Upload](screenshot/listSetelahUpload.png)
+
+#### List dari POV User Lain (lupiwo)
+
+![List POV User Lain](screenshot/listPOVUserLain.png)
+
+#### Download Berhasil (User Lain)
+
+![Download Berhasil](screenshot/downloadBerhasil.png)
+
+#### Server Log
+
+![Server Log](screenshot/serverLog.png)
+
 ## Output File yang Dihasilkan
 
 | File/Folder | Lokasi | Keterangan |
